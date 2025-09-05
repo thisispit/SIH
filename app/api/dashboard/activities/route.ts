@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { queries } from "@/lib/database"
+import { getActivitiesByStudent } from "@/lib/mock-data"
 
 export async function GET(request: Request) {
   try {
@@ -18,8 +18,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: "Invalid user ID" }, { status: 400 })
     }
 
-    // Get user activities
-    const activities = queries.getActivitiesByStudent(userIdNum)
+    // Get user activities from mock data
+    const activities = getActivitiesByStudent(userIdNum)
     
     // Sort by date (most recent first) and limit
     const sortedActivities = activities

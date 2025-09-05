@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, Search, Plus, GraduationCap } from "lucide-react"
@@ -9,8 +11,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useRouter } from "next/navigation"
 
-export function ActivityHeader() {
+interface ActivityHeaderProps {
+  onNewActivityClick: () => void;
+}
+
+export function ActivityHeader({ onNewActivityClick }: ActivityHeaderProps) {
+  const router = useRouter()
+
+  const handleSignOut = () => {
+    localStorage.removeItem('currentUser')
+    router.push('/login')
+  }
+
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,7 +66,7 @@ export function ActivityHeader() {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-4">
-            <Button size="sm" className="gap-2">
+            <Button size="sm" className="gap-2" onClick={onNewActivityClick}>
               <Plus className="h-4 w-4" />
               New Activity
             </Button>
@@ -87,7 +101,7 @@ export function ActivityHeader() {
                 <DropdownMenuItem>Preferences</DropdownMenuItem>
                 <DropdownMenuItem>Help & Support</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Sign Out</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

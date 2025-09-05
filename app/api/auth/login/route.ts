@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
-import { queries } from "@/lib/database"
+import { getUserByEmail, verifyPassword } from "@/lib/mock-data"
 
 export async function POST(request: Request) {
   try {
@@ -10,21 +10,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Email and password are required." }, { status: 400 })
     }
 
-    // Check if user exists
-    const user = queries.getUserByEmail(email)
+    // Find user by email
+    const user = getUserByEmail(email)
     if (!user) {
       return NextResponse.json({ message: "Invalid credentials." }, { status: 401 })
     }
 
-    // Compare passwords
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash)
+    // Verify password
+    const isPasswordValid = await verifyPassword(password, user.password_hash)
     if (!isPasswordValid) {
       return NextResponse.json({ message: "Invalid credentials." }, { status: 401 })
     }
 
-    // For simplicity, return user data (excluding password hash)
-    const { password_hash, ...userData } = user
-    return NextResponse.json({ message: "Login successful.", user: userData }, { status: 200 })
+    // In a real application, you would generate a session token or JWT here
+    const { password_hash, ...userWithoutPassword } = user
+    return NextResponse.json({ 
+      message: "Login successful!", 
+      user: userWithoutPassword 
+    }, { status: 200 })
   } catch (error) {
     console.error("Login error:", error)
     return NextResponse.json({ message: "Internal server error." }, { status: 500 })

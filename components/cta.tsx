@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Mail } from "lucide-react"
+import Link from "next/link"
 
 export function CTA() {
   return (
@@ -15,9 +16,11 @@ export function CTA() {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" className="gap-2 w-full sm:w-auto">
-              Start Free Trial
-              <ArrowRight className="h-4 w-4" />
+            <Button size="lg" className="gap-2 w-full sm:w-auto" asChild>
+              <Link href="/login">
+                Start Free Trial
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </Button>
             <Button variant="outline" size="lg" className="gap-2 w-full sm:w-auto bg-transparent">
               <Mail className="h-4 w-4" />

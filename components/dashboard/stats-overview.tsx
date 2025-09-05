@@ -46,7 +46,7 @@ export function StatsOverview({ userId }: StatsOverviewProps) {
           const data = await response.json()
           setStats([
             {
-              title: "Total Credits",
+              title: "Total Points",
               value: data.totalCredits.toString(),
               change: `${data.approvedActivities} approved activities`,
               icon: Award,

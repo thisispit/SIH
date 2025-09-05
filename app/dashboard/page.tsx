@@ -9,6 +9,10 @@ import { GoalTracker } from "@/components/dashboard/goal-tracker"
 import { PortfolioPreview } from "@/components/dashboard/portfolio-preview"
 import { RecentActivities } from "@/components/dashboard/recent-activities"
 import { PerformanceChart } from "@/components/dashboard/performance-chart"
+import { Announcements } from "@/components/dashboard/announcements"
+import { UpcomingEvents } from "@/components/dashboard/upcoming-events"
+import { QuickActions } from "@/components/dashboard/quick-actions"
+import { AchievementBadges } from "@/components/dashboard/achievement-badges"
 
 interface User {
   id: number
@@ -97,8 +101,12 @@ export default function StudentDashboard() {
 
             {/* Right Column - Sidebar */}
             <div className="space-y-8">
+              <QuickActions />
               <GoalTracker userId={currentUser.id} />
               <PortfolioPreview userId={currentUser.id} />
+              <AchievementBadges userId={currentUser.id} />
+              <Announcements />
+              <UpcomingEvents />
               <RecentActivities userId={currentUser.id} />
             </div>
           </div>

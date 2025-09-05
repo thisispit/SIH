@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { queries } from "@/lib/database"
+import { getStudentStats } from "@/lib/mock-data"
 
 export async function GET(request: Request) {
   try {
@@ -16,8 +16,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: "Invalid user ID" }, { status: 400 })
     }
 
-    // Get user stats to calculate current progress
-    const stats = queries.getStudentStats(userIdNum)
+    // Get user stats to calculate current progress from mock data
+    const stats = getStudentStats(userIdNum)
     
     // Default goals based on user progress
     const goals = [

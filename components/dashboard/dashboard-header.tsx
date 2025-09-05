@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, Search, Plus, GraduationCap } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +13,21 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function DashboardHeader() {
+  const router = useRouter()
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    const currentUser = localStorage.getItem('currentUser')
+    if (currentUser) {
+      setUser(JSON.parse(currentUser))
+    }
+  }, [])
+
+  const handleSignOut = () => {
+    localStorage.removeItem('currentUser')
+    router.push('/login')
+  }
+
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,7 +66,7 @@ export function DashboardHeader() {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-4">
-            <Button size="sm" className="gap-2">
+            <Button size="sm" className="gap-2" onClick={() => router.push('/activities')}>
               <Plus className="h-4 w-4" />
               Add Activity
             </Button>
@@ -67,16 +84,22 @@ export function DashboardHeader() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/diverse-student-profiles.png" alt="Alice Cooper" />
-                    <AvatarFallback>AC</AvatarFallback>
+                    <AvatarImage src="/diverse-student-profiles.png" alt={user?.first_name || "User"} />
+                    <AvatarFallback>
+                      {user?.first_name?.[0]}{user?.last_name?.[0]}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Alice Cooper</p>
-                    <p className="text-xs leading-none text-muted-foreground">STU001 • Computer Science</p>
+                    <p className="text-sm font-medium leading-none">
+                      {user?.first_name} {user?.last_name}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user?.student_id} • {user?.department}
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -84,7 +107,7 @@ export function DashboardHeader() {
                 <DropdownMenuItem>Preferences</DropdownMenuItem>
                 <DropdownMenuItem>Help & Support</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Sign Out</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

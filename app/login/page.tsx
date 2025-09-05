@@ -96,10 +96,6 @@ export default function LoginPage() {
                   Sign Up
                 </Link>
               </p>
-              <div className="text-xs text-muted-foreground border-t pt-2">
-                <strong>Faculty Login:</strong> Use email: faculty@university.edu, password: password123<br/>
-                <strong>Student Login:</strong> Use email: pitambersingh379@gmail.com, password: password123
-              </div>
             </div>
           </CardFooter>
         </form>

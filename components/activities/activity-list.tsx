@@ -12,7 +12,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -90,10 +89,62 @@ const getStatusColor = (status: string) => {
   }
 }
 
-export function ActivityList() {
+interface ActivityListProps {
+  isCreateDialogOpen: boolean;
+  setIsCreateDialogOpen: (open: boolean) => void;
+}
+
+export function ActivityList({ isCreateDialogOpen, setIsCreateDialogOpen }: ActivityListProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedActivity, setSelectedActivity] = useState<any>(null)
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: '',
+    credits: 0
+  })
+
+  const handleSubmit = async (isDraft = false) => {
+    setLoading(true)
+    try {
+      const currentUser = localStorage.getItem('currentUser')
+      if (!currentUser) {
+        alert('Please log in to submit activities')
+        return
+      }
+
+      const user = JSON.parse(currentUser)
+      
+      const response = await fetch('/api/activities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          student_id: user.id,
+          status: isDraft ? 'draft' : 'submitted'
+        }),
+      })
+
+      if (response.ok) {
+        alert('Activity created successfully!')
+        setIsCreateDialogOpen(false)
+        setFormData({ title: '', description: '', category: '', credits: 0 })
+        // Refresh the page to show new activity
+        window.location.reload()
+      } else {
+        const error = await response.json()
+        alert(error.message || 'Failed to create activity')
+      }
+    } catch (error) {
+      console.error('Submit error:', error)
+      alert('An error occurred while submitting')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -106,12 +157,10 @@ export function ActivityList() {
               <CardDescription>Manage your academic and extracurricular activities</CardDescription>
             </div>
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  New Activity
-                </Button>
-              </DialogTrigger>
+              <Button className="gap-2" onClick={() => setIsCreateDialogOpen(true)}>
+                <Plus className="h-4 w-4" />
+                New Activity
+              </Button>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>Create New Activity</DialogTitle>
@@ -122,11 +171,16 @@ export function ActivityList() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="title">Activity Title</Label>
-                      <Input id="title" placeholder="Enter activity title" />
+                      <Input 
+                        id="title" 
+                        placeholder="Enter activity title" 
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="category">Category</Label>
-                      <Select>
+                      <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
@@ -146,13 +200,24 @@ export function ActivityList() {
 
                   <div className="space-y-2">
                     <Label htmlFor="description">Description</Label>
-                    <Textarea id="description" placeholder="Describe your activity in detail" />
+                    <Textarea 
+                      id="description" 
+                      placeholder="Describe your activity in detail" 
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="start-date">Start Date</Label>
-                      <Input id="start-date" type="date" />
+                      <Label htmlFor="credits">Expected Credits</Label>
+                      <Input 
+                        id="credits" 
+                        type="number" 
+                        placeholder="0" 
+                        value={formData.credits}
+                        onChange={(e) => setFormData({ ...formData, credits: parseInt(e.target.value) || 0 })}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="end-date">End Date</Label>
@@ -178,10 +243,20 @@ export function ActivityList() {
                 </div>
 
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="bg-transparent">
-                    Save as Draft
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleSubmit(true)} 
+                    className="bg-transparent"
+                    disabled={loading || !formData.title || !formData.description || !formData.category}
+                  >
+                    {loading ? "Saving..." : "Save as Draft"}
                   </Button>
-                  <Button onClick={() => setIsCreateDialogOpen(false)}>Submit for Approval</Button>
+                  <Button 
+                    onClick={() => handleSubmit(false)}
+                    disabled={loading || !formData.title || !formData.description || !formData.category}
+                  >
+                    {loading ? "Submitting..." : "Submit for Approval"}
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>

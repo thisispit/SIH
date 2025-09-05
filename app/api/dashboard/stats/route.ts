@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { queries } from "@/lib/database"
+import { getUserById, getStudentStats, getActivitiesByStudent } from "@/lib/mock-data"
 
 export async function GET(request: Request) {
   try {
@@ -15,17 +15,17 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: "Invalid user ID" }, { status: 400 })
     }
 
-    // Get user info
-    const user = queries.getUserById(userIdNum)
+    // Get user info from mock data
+    const user = getUserById(userIdNum)
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 })
     }
 
-    // Get user stats (using existing query)
-    const stats = queries.getStudentStats(userIdNum)
+    // Get user stats from mock data
+    const stats = getStudentStats(userIdNum)
     
-    // Get user activities for additional stats
-    const activities = queries.getActivitiesByStudent(userIdNum)
+    // Get user activities for additional stats from mock data
+    const activities = getActivitiesByStudent(userIdNum)
     
     // Calculate performance score based on approved vs total activities
     const approvedActivities = activities.filter((a: any) => a.status === 'approved').length
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 
     // Format response
     const response = {
-      totalCredits: stats?.total_credits || 0,
+      totalCredits: stats?.total_points || 0,
       totalActivities: stats?.total_activities || 0,
       approvedActivities: stats?.approved_activities || 0,
       pendingActivities: stats?.pending_activities || 0,

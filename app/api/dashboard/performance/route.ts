@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { queries } from "@/lib/database"
+import { getActivitiesByStudent } from "@/lib/mock-data"
 
 export async function GET(request: Request) {
   try {
@@ -16,8 +16,24 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: "Invalid user ID" }, { status: 400 })
     }
 
-    // Get user activities to calculate monthly performance
-    const activities = queries.getActivitiesByStudent(userIdNum)
+    // Get user activities to calculate monthly performance from mock data
+    const activities = getActivitiesByStudent(userIdNum)
+    
+    // If no activities, return sample progression data
+    if (activities.length === 0) {
+      const sampleData = [
+        { month: 'Jan', credits: 0, activities: 0 },
+        { month: 'Feb', credits: 2, activities: 1 },
+        { month: 'Mar', credits: 5, activities: 2 },
+        { month: 'Apr', credits: 8, activities: 3 },
+        { month: 'May', credits: 12, activities: 4 },
+        { month: 'Jun', credits: 15, activities: 5 },
+        { month: 'Jul', credits: 18, activities: 6 },
+        { month: 'Aug', credits: 21, activities: 7 },
+        { month: 'Sep', credits: 24, activities: 8 }
+      ]
+      return NextResponse.json(sampleData)
+    }
     
     // Group activities by month and calculate cumulative data
     const monthlyData: { [key: string]: { credits: number, activities: number } } = {}

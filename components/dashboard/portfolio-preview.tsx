@@ -1,7 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Download, Eye } from "lucide-react"
+import { Download, Eye, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 interface PortfolioPreviewProps {
   userId: number
@@ -14,6 +15,8 @@ export function PortfolioPreview({ userId }: PortfolioPreviewProps) {
     lastUpdated: new Date().toLocaleDateString()
   })
   const [loading, setLoading] = useState(true)
+  const [downloading, setDownloading] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchPortfolioData = async () => {
@@ -38,6 +41,46 @@ export function PortfolioPreview({ userId }: PortfolioPreviewProps) {
       fetchPortfolioData()
     }
   }, [userId])
+
+  const handlePreview = () => {
+    router.push('/portfolio')
+  }
+
+  const handleDownload = async () => {
+    setDownloading(true)
+    try {
+      const response = await fetch('/api/portfolio/download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Create a new window with the portfolio HTML
+        const newWindow = window.open('', '_blank')
+        if (newWindow) {
+          newWindow.document.write(data.previewHtml)
+          newWindow.document.close()
+          
+          // Add print functionality
+          setTimeout(() => {
+            newWindow.print()
+          }, 1000)
+        }
+      } else {
+        alert('Failed to generate portfolio')
+      }
+    } catch (error) {
+      console.error('Download error:', error)
+      alert('An error occurred while generating portfolio')
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -83,13 +126,23 @@ export function PortfolioPreview({ userId }: PortfolioPreviewProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <Button size="sm" variant="outline" className="gap-2 bg-transparent">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="gap-2 bg-transparent"
+              onClick={handlePreview}
+            >
               <Eye className="h-4 w-4" />
               Preview
             </Button>
-            <Button size="sm" className="gap-2">
-              <Download className="h-4 w-4" />
-              Download
+            <Button 
+              size="sm" 
+              className="gap-2"
+              onClick={handleDownload}
+              disabled={downloading}
+            >
+              {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              {downloading ? 'Generating...' : 'Download'}
             </Button>
           </div>
 

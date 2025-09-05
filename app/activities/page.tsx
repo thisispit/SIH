@@ -1,12 +1,17 @@
+"use client"
+
 import { ActivityHeader } from "@/components/activities/activity-header"
 import { ActivityFilters } from "@/components/activities/activity-filters"
 import { ActivityList } from "@/components/activities/activity-list"
 import { ActivityStats } from "@/components/activities/activity-stats"
+import { useState } from "react"
 
 export default function ActivitiesPage() {
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+
   return (
     <div className="min-h-screen bg-background">
-      <ActivityHeader />
+      <ActivityHeader onNewActivityClick={() => setIsCreateDialogOpen(true)} />
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
@@ -29,7 +34,7 @@ export default function ActivitiesPage() {
               <ActivityFilters />
             </div>
             <div className="lg:col-span-3">
-              <ActivityList />
+              <ActivityList isCreateDialogOpen={isCreateDialogOpen} setIsCreateDialogOpen={setIsCreateDialogOpen} />
             </div>
           </div>
         </div>
